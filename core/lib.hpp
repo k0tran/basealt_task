@@ -1,6 +1,7 @@
 #pragma once
 
 #include "nlohmann/json_fwd.hpp"
+#include <functional>
 #include <nlohmann/json.hpp>
 
 #include <string>
@@ -19,6 +20,11 @@ private:
     std::string base_url;
 };
 
+enum class BranchFilter {
+    RIGHT,
+    LEFT,
+    NONE
+};
 
 /// Class for parsing branch info
 /// Utilizes ordered structure of request
@@ -27,6 +33,8 @@ public:
     explicit BranchData(json);
 
     json substract(const BranchData &) const;
+
+    json filter(const BranchData &, std::function<BranchFilter(const json &, const json &)>) const;
 
 private:
     ojson data;
