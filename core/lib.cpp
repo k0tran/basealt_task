@@ -16,7 +16,7 @@ std::optional<json> ALTAPI::get(const std::string &path) const {
 
 BranchData::BranchData(json source) {
     for (size_t i = 0; i < source["packages"].size(); ++i) {
-        json stripped{std::move(source["packages"][i])};
+        json stripped(std::move(source["packages"][i]));
         std::string arch = stripped["arch"];
         std::string name = stripped["name"];
         stripped.erase("arch");
@@ -24,7 +24,7 @@ BranchData::BranchData(json source) {
 
         // Arch and name level should be ordered
         if (!data.contains(arch))
-            data[arch] = ojson();
+            data[arch] = ojson({});
 
         data[arch][name] = std::move(stripped);
     }
