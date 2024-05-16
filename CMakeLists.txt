@@ -37,15 +37,24 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(cli11_proj)
 
-# FetchContent_Declare(semver URL https://github.com/Neargye/semver/archive/refs/tags/v0.3.1.tar.gz)
-# FetchContent_MakeAvailable(semver)
+# Find the RPM library and headers
+find_path(RPM_INCLUDE_DIR NAMES rpm/rpmlib.h)
+find_library(RPM_LIBRARY NAMES rpm)
+find_library(RPMIO_LIBRARY NAMES rpmio)
+
+if (RPM_INCLUDE_DIR AND RPM_LIBRARY AND RPMIO_LIBRARY)
+    message(STATUS "Found RPM: ${RPM_LIBRARY}, RPMIO: ${RPMIO_LIBRARY}")
+else()
+    message(FATAL_ERROR "Could not find RPM library or headers")
+endif()
 
 add_library(core core/lib.cpp)
 target_link_libraries(core PRIVATE cpr::cpr)
 target_link_libraries(core PUBLIC nlohmann_json::nlohmann_json)
 
 add_executable(cli cli/main.cpp)
+target_include_directories(cli PRIVATE ${RPM_INCLUDE_DIR})
 target_link_libraries(cli PRIVATE core)
 target_include_directories(cli PRIVATE core)
 target_link_libraries(cli PRIVATE CLI11::CLI11)
-# target_link_libraries(cli PRIVATE semver::semver)
+target_link_libraries(cli PRIVATE ${RPM_LIBRARY} ${RPMIO_LIBRARY})

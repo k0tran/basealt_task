@@ -1,11 +1,12 @@
 // Local library
 #include <lib.hpp>
 
-// #include <semver.hpp>
+#include <rpm/rpmlib.h>
+#include <rpm/header.h>
 #include <CLI/CLI.hpp>
 #include <fstream>
 #include <iostream>
-// #include <sstream>
+#include <sstream>
 #include <stdexcept>
 
 BranchData from_file(const std::string &filename) {
@@ -55,16 +56,14 @@ int main(int argc, char **argv) {
     result["b1_vs_b2"] = (b1 - b2).flatten();
     result["b2_vs_b2"] = (b2 - b1).flatten();
     result["versions"] = b1.combine(b2, [](auto p1, auto p2) {
-        /*
         std::stringstream ss1, ss2;
         ss1 << p1["version"] << '-' << p1["release"];
         ss2 << p2["version"] << '-' << p2["release"];
 
-        semver::version v1{ss1.str()}, v2{ss2.str()};
-
-        if (v1 > v2)
+        int result = rpmvercmp(ss1.str().c_str(), ss2.str().c_str());
+        if (result > 0)
             return BranchData::TakePkg::LEFT;
-        else*/
+        else
             return BranchData::TakePkg::NONE;
     }).flatten();
 

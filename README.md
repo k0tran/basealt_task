@@ -2,9 +2,9 @@
 
 Lib and CLI tool for comparing two ALT Linux branch packages. Produces JSON that contains:
 
--   All packages that are present in first branch and not present in second (field `b1_vs_b2`);
--   All packages that are present in second branch ant not present in first (field `b2_vs_b1`);
--   All packages from first branch that have bigger version-release (**NOT WORKING**)
+- All packages that are present in first branch and not present in second (field `b1_vs_b2`);
+- All packages that are present in second branch ant not present in first (field `b2_vs_b1`);
+- All packages from first branch that have bigger version-release (field `versions`);
 
 Usage:
 
@@ -35,14 +35,20 @@ Options:
 
 ## How to build
 
-There is `CMakeLists.txt` in the project root. All dependencies downloaded using `FetchContent`:
+There is `CMakeLists.txt` in the project root. All dependencies downloaded using `FetchContent` **except librpm and librpmio**:
 
--   [cpr](https://github.com/libcpr/cpr);
--   [nlohmann_json](https://github.com/nlohmann/json);
--   [CLI11](https://github.com/CLIUtils/CLI11);
--   [~~semver~~](https://github.com/Neargye/semver);
+- [cpr](https://github.com/libcpr/cpr);
+- [nlohmann_json](https://github.com/nlohmann/json);
+- [CLI11](https://github.com/CLIUtils/CLI11);
+- librpm and librpmio
 
-For linux command may look like something like this:
+On arch librpm and librpm io can be installed with
+
+```sh
+sudo pacman -S rpm-tools
+```
+
+For linux build command may look like something like this:
 
 ```sh
 cmake -B build -DCMAKE_BUILD_TYPE=Release
