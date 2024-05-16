@@ -1,9 +1,11 @@
 // Local library
-#include <fstream>
 #include <lib.hpp>
 
+// #include <semver.hpp>
 #include <CLI/CLI.hpp>
+#include <fstream>
 #include <iostream>
+// #include <sstream>
 #include <stdexcept>
 
 BranchData from_file(const std::string &filename) {
@@ -53,8 +55,17 @@ int main(int argc, char **argv) {
     result["b1_vs_b2"] = (b1 - b2).flatten();
     result["b2_vs_b2"] = (b2 - b1).flatten();
     result["versions"] = b1.combine(b2, [](auto p1, auto p2) {
-        // TODO: compare versions
-        return BranchData::TakePkg::LEFT;
+        /*
+        std::stringstream ss1, ss2;
+        ss1 << p1["version"] << '-' << p1["release"];
+        ss2 << p2["version"] << '-' << p2["release"];
+
+        semver::version v1{ss1.str()}, v2{ss2.str()};
+
+        if (v1 > v2)
+            return BranchData::TakePkg::LEFT;
+        else*/
+            return BranchData::TakePkg::NONE;
     }).flatten();
 
     std::cout << (dump_readable ? result.dump(4) : result.dump()) << std::endl;
