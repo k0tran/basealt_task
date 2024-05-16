@@ -20,22 +20,31 @@ private:
     std::string base_url;
 };
 
-enum class BranchFilter {
-    RIGHT,
-    LEFT,
-    NONE
-};
-
 /// Class for parsing branch info
 /// Utilizes ordered structure of request
 class BranchData {
 public:
-    explicit BranchData(json);
+    enum class TakePkg {
+        RIGHT,
+        LEFT,
+        NONE
+    };
 
-    json substract(const BranchData &) const;
+  BranchData() = default;
+  explicit BranchData(json &&);
 
-    json filter(const BranchData &, std::function<BranchFilter(const json &, const json &)>) const;
+  BranchData(const BranchData &) = default;
+  BranchData(BranchData &&) = default;
+  BranchData &operator=(const BranchData &) = default;
+  BranchData &operator=(BranchData &&) = default;
+
+  BranchData operator-(const BranchData &) const;
+
+  BranchData combine(const BranchData &, std::function<TakePkg(const json &, const json &)>) const;
+
+  /// Makes flat json array consuming inner map
+  json flatten() const &&;
 
 private:
-    ojson data;
+    std::map<std::pair<std::string, std::string>, json> data;
 };

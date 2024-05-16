@@ -6,7 +6,7 @@
 #include <iostream>
 #include <stdexcept>
 
-BranchData from_file(const std::string filename) {
+BranchData from_file(const std::string &filename) {
     std::ifstream f{filename};
     return BranchData(std::move(json::parse(f)));
 }
@@ -39,6 +39,9 @@ int main(int argc, char **argv) {
     std::string branch_prefix;
     app.add_option("Branch prefix", branch_prefix)->default_str("/export/branch_binary_packages/");
 
+    bool dump_readable;
+    app.add_flag("-r", dump_readable)->default_val(false);
+
     CLI11_PARSE(app, argc, argv);
 
     ALTAPI api{base_url};
@@ -46,7 +49,15 @@ int main(int argc, char **argv) {
     BranchData b1 = b1_name.empty() ? from_file(b1_file) : from_web(api, branch_prefix + b1_name);
     BranchData b2 = b2_name.empty() ? from_file(b2_file) : from_web(api, branch_prefix + b2_name);
 
-    // TODO: calc b1_vs_b2, b2_vs_b1 and versions
+    json result({});
+    result["b1_vs_b2"] = (b1 - b2).flatten();
+    result["b2_vs_b2"] = (b2 - b1).flatten();
+    result["versions"] = b1.combine(b2, [](auto p1, auto p2) {
+        // TODO: compare versions
+        return BranchData::TakePkg::LEFT;
+    }).flatten();
+
+    std::cout << (dump_readable ? result.dump(4) : result.dump()) << std::endl;
 
     return 0;
 }
