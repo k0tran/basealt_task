@@ -1,4 +1,6 @@
 // Local library
+#include <cstdlib>
+#include <exception>
 #include <lib.hpp>
 
 #include <rpm/rpmlib.h>
@@ -14,7 +16,7 @@ BranchData from_file(const std::string &filename) {
     return BranchData(std::move(json::parse(f)));
 }
 
-BranchData from_web(ALTAPI &api, const std::string url) {
+BranchData from_web(ALTAPI &api, const std::string &url) {
     auto res = api.get(url);
     if (!res.has_value())
         throw std::runtime_error("Could not reach API");
@@ -40,7 +42,7 @@ int main(int argc, char **argv) {
     app.add_option("API base URL", base_url)->default_val("rdb.altlinux.org/api/");
 
     std::string branch_prefix;
-    app.add_option("Branch prefix", branch_prefix)->default_str("/export/branch_binary_packages/");
+    app.add_option("Branch prefix", branch_prefix)->default_val("/export/branch_binary_packages/");
 
     bool dump_readable;
     app.add_flag("-r", dump_readable)->default_val(false);
@@ -49,8 +51,14 @@ int main(int argc, char **argv) {
 
     ALTAPI api{base_url};
 
-    BranchData b1 = b1_name.empty() ? from_file(b1_file) : from_web(api, branch_prefix + b1_name);
-    BranchData b2 = b2_name.empty() ? from_file(b2_file) : from_web(api, branch_prefix + b2_name);
+    BranchData b1, b2;
+    try {
+        b1 = b1_name.empty() ? from_file(b1_file) : from_web(api, branch_prefix + b1_name);
+        b2 = b2_name.empty() ? from_file(b2_file) : from_web(api, branch_prefix + b2_name);
+    } catch (const std::exception &e) {
+        std::cerr << "Failed to get branch data" << std::endl;
+        return EXIT_FAILURE;
+    }
 
     json result({});
     result["b1_vs_b2"] = (b1 - b2).flatten();
@@ -69,5 +77,5 @@ int main(int argc, char **argv) {
 
     std::cout << (dump_readable ? result.dump(4) : result.dump()) << std::endl;
 
-    return 0;
+    return EXIT_SUCCESS;
 }
