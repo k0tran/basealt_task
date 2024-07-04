@@ -30,21 +30,23 @@ public:
         NONE
     };
 
-  BranchData() = default;
-  explicit BranchData(json &&);
+    BranchData() = default;
+    explicit BranchData(json &&);
 
-  BranchData(const BranchData &) = default;
-  BranchData(BranchData &&) = default;
-  BranchData &operator=(const BranchData &) = default;
-  BranchData &operator=(BranchData &&) = default;
+    BranchData(const BranchData &) = default;
+    BranchData(BranchData &&) = default;
+    BranchData &operator=(const BranchData &) = default;
+    BranchData &operator=(BranchData &&) = default;
 
-  BranchData operator-(const BranchData &) const;
+    BranchData operator-(const BranchData &) const;
 
-  BranchData combine(const BranchData &, std::function<TakePkg(const json &, const json &)>) const;
+    BranchData combine(const BranchData &, std::function<TakePkg(const json &, const json &)>) const;
 
-  /// Makes flat json array consuming inner map
-  json flatten() const &&;
+    /// Makes flat json array consuming inner map
+    json flatten() const &&;
 
 private:
+    /// Map key is pair of package.arch and package.name
+    /// Map value is json data with everything else
     std::map<std::pair<std::string, std::string>, json> data;
 };
